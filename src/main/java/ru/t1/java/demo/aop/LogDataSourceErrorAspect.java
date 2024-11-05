@@ -7,22 +7,25 @@ import org.aspectj.lang.annotation.AfterThrowing;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.stereotype.Component;
 import ru.t1.java.demo.model.DataSourceErrorLog;
+import ru.t1.java.demo.repository.DataSourceErrorLogRepository;
 
 @Aspect
 @Component
 public class LogDataSourceErrorAspect {
-    @PersistenceContext
-    private EntityManager entityManager;
+    private DataSourceErrorLogRepository errorLogRepository;
 
-    @AfterThrowing(pointcut = "execution(* com.example.bankapp..*(..))", throwing = "exception")
-    public void logDataSourceError(JoinPoint joinPoint, Throwable exception) {
+    @AfterThrowing(pointcut = "@annotation(LogDataSourceError)", throwing = "ex")
+    public void logDataSourceError(Exception ex) {
+        String stackTrace = getStackTraceAsString(ex);
+        String message = ex.getMessage();
+        String methodSignature = ex.getStackTrace()[0].toString();
+
         DataSourceErrorLog errorLog = DataSourceErrorLog.builder()
-                .stackTrace(getStackTraceAsString(exception))
-                .message(exception.getMessage())
-                .methodSignature(joinPoint.getSignature().toString())
+                .stackTrace(stackTrace)
+                .message(message)
+                .methodSignature(methodSignature)
                 .build();
-
-        entityManager.persist(errorLog);
+        errorLogRepository.save(errorLog);
     }
 
     private String getStackTraceAsString(Throwable throwable) {

@@ -1,47 +1,39 @@
 package ru.t1.java.demo.controller;
 
-import org.apache.kafka.common.errors.ResourceNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.t1.java.demo.aop.LogDataSourceError;
 import ru.t1.java.demo.model.Account;
+import ru.t1.java.demo.service.AccountService;
 
 import java.util.List;
-import java.util.Optional;
 
+@Slf4j
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/accounts")
 public class AccountController {
-    @Autowired
-    private AccountRepository accountRepository;
+    private final AccountService accountService;
 
-    @GetMapping
-    public List<Account> getAllAccounts() {
-        return accountRepository.findAll();
+    @PostMapping
+    public ResponseEntity<Account> createAccount(@RequestBody Account account) {
+        Account createdAccount = accountService.registerAccount(account);
+        return ResponseEntity.ok(createdAccount);
     }
 
     @GetMapping("/{id}")
-    public Optional<Account> getAccountById(@PathVariable Long id) {
-        return accountRepository.findById(id);
+    @LogDataSourceError
+    public ResponseEntity<Account> getAccount(@PathVariable Long id) {
+        return accountService.getAccountById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
-    @PostMapping
-    public Account createAccount(@RequestBody Account account) {
-        return accountRepository.save(account);
-    }
-
-    @PutMapping("/{id}")
-    public Account updateAccount(@PathVariable Long id, @RequestBody Account accountDetails) {
-        Account account = accountRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Account not found"));
-        account.setClientId(accountDetails.getClientId());
-        account.setAccountType(accountDetails.getAccountType());
-        account.setBalance(accountDetails.getBalance());
-        return accountRepository.save(account);
-    }
-
-    @DeleteMapping("/{id}")
-    public void deleteAccount(@PathVariable Long id) {
-        Account account = accountRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Account not found"));
-        accountRepository.delete(account);
+    @PostMapping("/register-accounts")
+    public ResponseEntity<List<Account>> registerAccounts(@RequestBody List<Account> accounts) {
+        List<Account> registeredAccounts = accountService.registerAccounts(accounts);
+        return ResponseEntity.ok(registeredAccounts);
     }
 }

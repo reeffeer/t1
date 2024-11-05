@@ -2,6 +2,7 @@ package ru.t1.java.demo.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import ru.t1.java.demo.aop.LogDataSourceError;
 import ru.t1.java.demo.model.Transaction;
 import ru.t1.java.demo.repository.TransactionRepository;
 
@@ -15,11 +16,13 @@ public class TransactionController {
     private TransactionRepository transactionRepository;
 
     @GetMapping
+    @LogDataSourceError
     public List<Transaction> getAllTransactions() {
         return transactionRepository.findAll();
     }
 
     @GetMapping("/{id}")
+    @LogDataSourceError
     public Optional<Transaction> getTransactionById(@PathVariable Long id) {
         return transactionRepository.findById(id);
     }
