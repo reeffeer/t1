@@ -19,7 +19,7 @@ public class AccountServiceImpl implements AccountService {
     private final AccountRepository accountRepository;
 
     @Override
-    public List<Account> registerAccounts(List<Account> accounts) {
+    public List<Account> saveAll(List<Account> accounts) {
         List<Account> savedAccounts = new ArrayList<>();
         for (Account account : accounts) {
             Account saved = accountRepository.save(account);
@@ -29,7 +29,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Account registerAccount(Account account) {
+    public Account save(Account account) {
         Account saved = accountRepository.save(account);
         log.info("Account registered: {}", saved.getClientId());
         return saved;
@@ -38,5 +38,10 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public Optional<Account> getAccountById(Long id) {
         return accountRepository.findById(id);
+    }
+
+    @Override
+    public Optional<Account> delete(Long id) {
+        return Optional.empty();
     }
 }

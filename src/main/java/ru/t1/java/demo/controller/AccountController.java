@@ -22,7 +22,7 @@ public class AccountController {
     @PostMapping
     @Metric(500)
     public ResponseEntity<Account> createAccount(@RequestBody Account account) {
-        Account createdAccount = accountService.registerAccount(account);
+        Account createdAccount = accountService.save(account);
         return ResponseEntity.ok(createdAccount);
     }
 
@@ -33,7 +33,7 @@ public class AccountController {
         account.setClientId(accountDetails.getClientId());
         account.setAccountType(accountDetails.getAccountType());
         account.setBalance(accountDetails.getBalance());
-        return accountService.registerAccount(account);
+        return accountService.save(account);
     }
 
     @GetMapping("/{id}")
@@ -46,7 +46,7 @@ public class AccountController {
 
     @PostMapping("/register-accounts")
     public ResponseEntity<List<Account>> registerAccounts(@RequestBody List<Account> accounts) {
-        List<Account> registeredAccounts = accountService.registerAccounts(accounts);
+        List<Account> registeredAccounts = accountService.saveAll(accounts);
         return ResponseEntity.ok(registeredAccounts);
     }
 
