@@ -9,4 +9,5 @@ public interface AccountService {
     List<Account> registerAccounts(List<Account> accounts);
     Account registerAccount(Account account);
     Optional<Account> getAccountById(Long id);
+    Optional<Account> delete(Long id);
 }
