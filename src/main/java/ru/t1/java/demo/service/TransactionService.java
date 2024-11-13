@@ -9,4 +9,5 @@ public interface TransactionService {
     Transaction createTransaction(Transaction transaction);
     Optional<Transaction> getTransactionById(Long id);
     Optional<List<Transaction>> saveAll(List<Transaction> transactions);
+    Transaction updateTransaction(Transaction transaction);
 }

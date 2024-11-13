@@ -2,6 +2,7 @@ package ru.t1.java.demo.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.common.errors.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.t1.java.demo.model.Account;
@@ -43,5 +44,21 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public Optional<Account> delete(Long id) {
         return Optional.empty();
+    }
+
+    @Override
+    public Account updateAccount(Long accountId, Account account) {
+        Optional<Account> existingAccount = accountRepository.findById(accountId);
+        if (existingAccount.isPresent()) {
+            Account updatedAccount = existingAccount.get();
+            updatedAccount.setClientId(account.getClientId());
+            updatedAccount.setAccountType(account.getAccountType());
+            updatedAccount.setStatus(account.getStatus());
+            updatedAccount.setBalance(account.getBalance());
+            updatedAccount.setFrozenAmount(account.getFrozenAmount());
+            return accountRepository.save(updatedAccount);
+        } else {
+            throw new ResourceNotFoundException("Account not found with id " + accountId);
+        }
     }
 }

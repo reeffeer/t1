@@ -30,11 +30,11 @@ public class ClientServiceImpl implements ClientService {
     public List<Client> registerClients(List<Client> clients) {
         List<Client> savedClients = new ArrayList<>();
         for (Client client : clients) {
-            Optional<CheckResponse> check = checkWebClient.check(client.getId());
+            Optional<CheckResponse> check = checkWebClient.check(client.getClientId());
             check.ifPresent(checkResponse -> {
                 if (!checkResponse.getBlocked()) {
                     Client saved = repository.save(client);
-                    kafkaClientProducer.send(saved.getId());
+                    kafkaClientProducer.send(saved.getClientId());
                     savedClients.add(saved);
                 }
             });
@@ -47,11 +47,11 @@ public class ClientServiceImpl implements ClientService {
     @Override
     public Client registerClient(Client client) {
         Client saved = null;
-        Optional<CheckResponse> check = checkWebClient.check(client.getId());
+        Optional<CheckResponse> check = checkWebClient.check(client.getClientId());
         if (check.isPresent()) {
             if (!check.get().getBlocked()) {
                 saved = repository.save(client);
-                kafkaClientProducer.send(client.getId());
+                kafkaClientProducer.send(client.getClientId());
             }
         }
         return saved;

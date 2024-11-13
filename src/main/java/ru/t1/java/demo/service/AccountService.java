@@ -10,4 +10,6 @@ public interface AccountService {
     Account save(Account account);
     Optional<Account> getAccountById(Long id);
     Optional<Account> delete(Long id);
+
+    Account updateAccount(Long accountId, Account account);
 }
