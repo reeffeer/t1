@@ -12,4 +12,6 @@ public interface AccountService {
     Optional<Account> delete(Long id);
 
     Account updateAccount(Long accountId, Account account);
+
+    Optional<Account> getAccountByClientAndAccountId(Long clientId, Long accountId);
 }

@@ -9,6 +9,7 @@ import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
 import ru.t1.java.demo.model.Account;
 import ru.t1.java.demo.model.Transaction;
 import ru.t1.java.demo.model.enums.AccountStatus;
@@ -25,6 +26,7 @@ public class Service1 {
     private final AccountService accountService;
     private final TransactionService transactionService;
     private final KafkaTemplate<String, String> kafkaTemplate;
+    private final WebClient webClient = WebClient.builder().build();
 
     @KafkaListener(id = "${t1.kafka.consumer.group-id}",
             topics = {"${t1.kafka.topic.transactions}", "t1_demo_transaction_result"},
@@ -39,7 +41,11 @@ public class Service1 {
                 Optional<Account> optionalAccount = accountService.getAccountById(transaction.getAccountId());
                 if (optionalAccount.isPresent()) {
                     Account account = optionalAccount.get();
-
+                    if (account.getStatus() == AccountStatus.UNKNOWN) {
+                        AccountStatus fetchedStatus = fetchAccountStatusFromService2(account.getClientId(), account.getAccountId());
+                        account.setStatus(fetchedStatus);
+                        accountService.updateAccount(account.getAccountId(), account);
+                    }
                     if (topic.equals("${t1.kafka.topic.transactions}")) {
                         if (account.getStatus() == AccountStatus.OPEN) {
                             transaction.setStatus(TransactionStatus.REQUESTED);
@@ -96,5 +102,15 @@ public class Service1 {
             ack.acknowledge();
         }
         log.debug("Service1: Обработка сообщений завершена");
+    }
+
+    public AccountStatus fetchAccountStatusFromService2(Long clientId, Long accountId) {
+        String url = String.format("http://localhost:8081/api/accounts/%d/%s/status", clientId, accountId);
+
+        return webClient.get()
+                .uri(url)
+                .retrieve()
+                .bodyToMono(AccountStatus.class)
+                .block();
     }
 }

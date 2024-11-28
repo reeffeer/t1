@@ -4,5 +4,5 @@ public enum AccountStatus {
     ARRESTED,
     BLOCKED,
     CLOSED,
-    OPEN
+    UNKNOWN, OPEN
 }
