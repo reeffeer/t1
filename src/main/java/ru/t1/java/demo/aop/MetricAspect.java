@@ -7,6 +7,8 @@ import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
@@ -18,34 +20,23 @@ import java.util.concurrent.atomic.AtomicLong;
 @Component
 public class MetricAspect {
 
-    private static final AtomicLong START_TIME = new AtomicLong();
+    @Autowired
+    private KafkaTemplate<String, String> kafkaTemplate;
+    private static final String TOPIC = "t1_demo_metrics";
+    private static final String ERROR_TYPE = "METRICS";
 
-    @Before("@annotation(ru.t1.java.demo.aop.Track)")
-    public void logExecTime(JoinPoint joinPoint) throws Throwable {
-        log.info("Старт метода: {}", joinPoint.getSignature().toShortString());
-        START_TIME.addAndGet(System.currentTimeMillis());
-    }
+    @Around("execution(* ru.t1.java.demo..*(..))  && @annotation(metric)")
+    public Object logExecutionTime(ProceedingJoinPoint joinPoint, Metric metric) throws Throwable {
+        long start = System.currentTimeMillis();
+        Object proceed = joinPoint.proceed();
+        long executionTime = System.currentTimeMillis() - start;
 
-    @After("@annotation(ru.t1.java.demo.aop.Track)")
-    public void calculateTime(JoinPoint joinPoint) {
-        long afterTime = System.currentTimeMillis();
-        log.info("Время исполнения: {} ms", (afterTime - START_TIME.get()));
-        START_TIME.set(0L);
-    }
-
-    @Around("@annotation(ru.t1.java.demo.aop.Track)")
-    public Object logExecTime(ProceedingJoinPoint pJoinPoint) throws Throwable {
-        log.info("Вызов метода: {}", pJoinPoint.getSignature().toShortString());
-        long beforeTime = System.currentTimeMillis();
-        Object result = null;
-        try {
-            result = pJoinPoint.proceed();//Important
-        } finally {
-            long afterTime = System.currentTimeMillis();
-            log.info("Время исполнения: {} ms", (afterTime - beforeTime));
+        if (executionTime > metric.value()) {
+            String message = String.format("Error Type: %s, Method: %s, Execution Time: %d ms, Args: %s",
+                    ERROR_TYPE, joinPoint.getSignature().toString(), executionTime, joinPoint.getArgs());
+            kafkaTemplate.send(TOPIC, message);
         }
 
-        return result;
+        return proceed;
     }
-
 }

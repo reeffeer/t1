@@ -59,7 +59,7 @@ public class LoggingAspect {
 
         Client client = Client.builder()
                 .build();
-        client.setId(42L);
+        client.setClientId(42L);
 
         try {
             Object proceed = joinPoint.proceed();

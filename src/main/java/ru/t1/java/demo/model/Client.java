@@ -1,8 +1,6 @@
 package ru.t1.java.demo.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.jpa.domain.AbstractPersistable;
 
@@ -14,6 +12,10 @@ import org.springframework.data.jpa.domain.AbstractPersistable;
 @AllArgsConstructor
 @Table(name = "client")
 public class Client extends AbstractPersistable<Long> {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long clientId;
 
     @Column(name = "first_name")
     private String firstName;
@@ -30,13 +32,11 @@ public class Client extends AbstractPersistable<Long> {
     @Column(name = "blocked_whom")
     private String blockedWhom;
 
-    @Override
-    public Long getId() {
+    public Long getClientId() {
         return super.getId();
     }
 
-    @Override
-    public void setId(Long id) {
+    public void setClientId(Long id) {
         super.setId(id);
     }
 }
