@@ -1,12 +1,10 @@
 package ru.t1.java.demo.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.jpa.domain.AbstractPersistable;
+import ru.t1.java.demo.model.enums.TransactionStatus;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Getter
@@ -18,8 +16,12 @@ import java.time.LocalDateTime;
 @Table(name = "transaction")
 public class Transaction extends AbstractPersistable<Long> {
 
-    @Column(name = "amount", precision = 19, scale = 2)
-    private BigDecimal amount;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long transactionId;
+
+    @Column(name = "transaction_amount", nullable = false)
+    private Double amount;
 
     @Column(name = "client_id")
     private Long clientId;
@@ -28,5 +30,9 @@ public class Transaction extends AbstractPersistable<Long> {
     private Long accountId;
 
     @Column(name = "transaction_time", nullable = false)
-    private LocalDateTime transactionTime;
+    private LocalDateTime transactionTime = LocalDateTime.now();
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "transaction_status", nullable = false)
+    private TransactionStatus status;
 }

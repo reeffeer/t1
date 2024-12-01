@@ -2,7 +2,7 @@ package ru.t1.java.demo.model;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.data.jpa.domain.AbstractPersistable;
+import ru.t1.java.demo.model.enums.AccountStatus;
 import ru.t1.java.demo.model.enums.AccountType;
 
 import java.math.BigDecimal;
@@ -16,7 +16,7 @@ import java.math.BigDecimal;
 public class Account {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long accountId;
 
     @Column(name = "client_id", nullable = false)
     private Long clientId;
@@ -27,4 +27,11 @@ public class Account {
 
     @Column(name = "balance", nullable = false)
     private Double balance;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "account_status", nullable = false)
+    private AccountStatus status;
+
+    @Column(name = "frozen_amount", nullable = false)
+    private BigDecimal frozenAmount;
 }
