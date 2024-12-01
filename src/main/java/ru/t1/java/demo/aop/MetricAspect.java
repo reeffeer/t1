@@ -25,7 +25,7 @@ public class MetricAspect {
     private static final String TOPIC = "t1_demo_metrics";
     private static final String ERROR_TYPE = "METRICS";
 
-    @Around("execution(* ru.t1.java.demo..*(..))  && @annotation(metric)")
+    @Around("@annotation(metric)")
     public Object logExecutionTime(ProceedingJoinPoint joinPoint, Metric metric) throws Throwable {
         long start = System.currentTimeMillis();
         Object proceed = joinPoint.proceed();
