@@ -7,6 +7,7 @@ import ru.t1.java.demo.model.Transaction;
 import ru.t1.java.demo.repository.TransactionRepository;
 import ru.t1.java.demo.service.TransactionService;
 
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -25,5 +26,10 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     public Optional<Transaction> getTransactionById(Long id) {
         return transactionRepository.findById(id);
+    }
+
+    @Override
+    public Optional<List<Transaction>> saveAll(List<Transaction> transactions) {
+        return Optional.of(transactions);
     }
 }
